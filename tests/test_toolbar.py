@@ -370,3 +370,8 @@ class AliasToolbarTestCase(BaseAliasPluginTestCase):
         self.assertNotEqual(bool(search_results), False)
         for result in search_results:
             self.assertEqual(result.item.disabled, False)
+
+# TODO:
+# - When versioning is installed, the language switcher works
+# - A skipped test that fails for the edit redirect language issue!
+

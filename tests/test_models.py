@@ -396,3 +396,7 @@ class AliasModelsTestCase(BaseAliasPluginTestCase):
         self.assertFalse(alias.__class__.objects.filter(pk=alias.pk).exists())
         self.assertEqual(alias.cms_plugins.count(), 0)
         self.assertEqual(Placeholder.objects.count(), 0)
+
+# TODO:
+# - Alias with identifier and site can only be added once
+# -

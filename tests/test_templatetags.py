@@ -119,3 +119,7 @@ class AliasTemplateTagAliasPlaceholderTestCase(BaseAliasPluginTestCase):
             self.get_request('/'),
         )
         self.assertEqual(output, "testContent Alias 1234")
+
+# TODO:
+# - Site switcher for the alias placeholder template tag
+

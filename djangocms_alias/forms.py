@@ -330,6 +330,13 @@ class AliasContentForm(forms.ModelForm):
         model = AliasContent
         fields = ('name',)
 
+    # TODO: Save on creation, create a version
+    """
+        if is_versioning_enabled():
+            from djangocms_versioning.models import Version
+            Version.objects.create(content=alias_content, created_by=self.user)
+    """
+
     def clean(self):
         cleaned_data = super().clean()
 

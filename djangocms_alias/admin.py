@@ -8,7 +8,7 @@ from .filters import LanguageFilter
 from .forms import AliasContentForm
 from .models import Alias, AliasContent, Category
 from .urls import urlpatterns
-from .utils import emit_content_change, emit_content_delete
+from .utils import emit_content_change, emit_content_delete, is_versioning_enabled
 
 
 __all__ = [
@@ -37,7 +37,7 @@ class CategoryAdmin(TranslatableAdmin):
 @admin.register(Alias)
 class AliasAdmin(admin.ModelAdmin):
     list_display = ['name', 'category']
-    fields = ('category', 'identifier',)
+    fields = ('category', 'identifier', 'site',)
 
     def get_urls(self):
         return urlpatterns + super().get_urls()
@@ -78,6 +78,9 @@ class AliasAdmin(admin.ModelAdmin):
         )
 
 
+
+
+
 @admin.register(AliasContent)
 class AliasContentAdmin(admin.ModelAdmin):
     form = AliasContentForm
@@ -85,7 +88,12 @@ class AliasContentAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        emit_content_change([obj], sender=self.model)
+
+        print("Saving model")
+        import pdb;
+        pdb.set_trace()
+
+        #emit_content_change([obj], sender=self.model)
 
     def delete_model(self, request, obj):
         super().delete_model(request, obj)

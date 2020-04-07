@@ -2,6 +2,7 @@ import operator
 from collections import defaultdict
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.encoding import force_text
@@ -79,16 +80,18 @@ class Alias(models.Model):
         default=0,
     )
     identifier = models.CharField(
-        verbose_name=_('identifier'),
+        verbose_name=_('template identifier'),
         max_length=255,
         blank=True,
         help_text=_('To render the alias in templates.')
     )
+    site = models.ForeignKey(Site, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = _('alias')
         verbose_name_plural = _('aliases')
         ordering = ['position']
+        unique_together = (('identifier', 'site'),)
 
     def __init__(self, *args, **kwargs):
         self._plugins_cache = {}
@@ -173,8 +176,9 @@ class Alias(models.Model):
             self._content_cache[language] = qs.first()
             return self._content_cache[language]
 
-    def get_placeholder(self, language=None):
-        return getattr(self.get_content(language), 'placeholder', None)
+    def get_placeholder(self, language=None, show_draft_content=False):
+        content = self.get_content(language=language, show_draft_content=show_draft_content)
+        return getattr(content, 'placeholder', None)
 
     def get_plugins(self, language=None):
         if not language:
@@ -189,7 +193,14 @@ class Alias(models.Model):
 
     def get_languages(self):
         if not self._content_languages_cache:
-            self._content_languages_cache = self.contents.values_list('language', flat=True)
+            queryset = self.contents.all()
+
+            if is_versioning_enabled():
+                from djangocms_versioning.helpers import remove_published_where
+                queryset = remove_published_where(queryset)
+
+            self._content_languages_cache = queryset.values_list('language', flat=True)
+
         return self._content_languages_cache
 
     def clear_cache(self):
