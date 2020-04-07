@@ -120,6 +120,35 @@ class AliasTemplateTagAliasPlaceholderTestCase(BaseAliasPluginTestCase):
         )
         self.assertEqual(output, "testContent Alias 1234")
 
+    def test_alias_rendered_on_site_its_bound_to(self):
+        """
+        When an alias is created for another site the alias is rendered
+        on the site it's bound for and not on other sites
+        """
+        alias = self._create_alias(identifier="some_uniquer_id")
+        alias_plugin = alias.get_content(self.language).populate(
+            replaced_placeholder=self.placeholder,
+        )
+        add_plugin(
+            alias.get_placeholder(self.language),
+            'TextPlugin',
+            language=self.language,
+            body='Content Alias 1234',
+        )
+
+        output = self.render_template_obj(
+            self.alias_template,
+            {
+                'plugin': alias_plugin,
+            },
+            self.get_request('/'),
+        )
+
+        self.assertFalse(True)
+        self.assertEqual(output, "testContent Alias 1234")
+
 # TODO:
 # - Site switcher for the alias placeholder template tag
+# - Alias template tag is rendered on the site when it's bound to one
+# - Alias template tag can be rendered on all sites if it's not bound!
 
