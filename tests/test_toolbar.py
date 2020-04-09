@@ -89,7 +89,6 @@ class AliasToolbarTestCase(BaseAliasPluginTestCase):
         _test_alias_endpoint(edit=True)
         _test_alias_endpoint(preview=True)
 
-    @skipIf(is_versioning_enabled(), 'Managing content is done by version admin')
     def test_alias_toolbar_language_menu(self):
         request = self.get_page_request(self.page, user=self.superuser)
         alias_menu = request.toolbar.get_menu(ALIAS_MENU_IDENTIFIER)
@@ -132,12 +131,16 @@ class AliasToolbarTestCase(BaseAliasPluginTestCase):
             set(['Deutsche...', 'Française...', 'Italiano...']),
             set(language_menu_dict['Add Translation']),
         )
-        self.assertEqual(
-            set(['English...']),
-            set(language_menu_dict['Delete Translation']),
-        )
 
         alias_content = alias.contents.create(name='test alias 2', language='fr')
+
+        if is_versioning_enabled():
+            from djangocms_versioning.constants import DRAFT
+            from djangocms_versioning.models import Version
+
+            Version.objects.create(
+                content=alias_content, created_by=self.superuser, state=DRAFT)
+
         alias_content.populate(replaced_placeholder=self.placeholder)
         alias_content.alias.clear_cache()
 
@@ -201,12 +204,14 @@ class AliasToolbarTestCase(BaseAliasPluginTestCase):
         alias = self._create_alias([self.plugin])
         alias_content = alias.contents.create(name='test alias 2', language='fr')
         expected_result = ['English', 'Française']
+
         if is_versioning_enabled():
             from djangocms_versioning.constants import DRAFT
             from djangocms_versioning.models import Version
+
             Version.objects.create(
                 content=alias_content, created_by=self.superuser, state=DRAFT)
-            expected_result = ['English']
+
         alias_content.populate(replaced_placeholder=self.placeholder)
         alias_content.alias.clear_cache()
 

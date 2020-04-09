@@ -90,8 +90,7 @@ class AliasContentAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
         print("Saving model")
-        import pdb;
-        pdb.set_trace()
+
 
         #emit_content_change([obj], sender=self.model)
 
